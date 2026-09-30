@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WashCode - Decode Your Laundry Tag</title>
+<meta name="description" content="WashCode turns the mystery symbols on clothing care tags into plain-English instructions. Tap the tub, triangle, square, iron and circle - know exactly how to wash, dry, bleach, iron and dry-clean.">
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; background:#0e7c86; color:#fff; line-height:1.55; }
+  .wrap { max-width:720px; margin:0 auto; padding:40px 20px 60px; }
+  .logo { font-size:44px; font-weight:800; letter-spacing:.5px; }
+  .logo span { color:#b8e6e9; }
+  .tag { font-size:19px; margin-top:10px; color:#e6f5f6; }
+  .cta { display:inline-block; margin-top:26px; background:#fff; color:#0e7c86; font-weight:700; font-size:17px;
+         padding:14px 30px; border-radius:12px; text-decoration:none; }
+  .cta:hover { background:#dff3f4; }
+  h2 { font-size:22px; margin:44px 0 12px; color:#eafafc; }
+  p { color:#d8eef0; margin-bottom:10px; }
+  .symbols { display:flex; gap:14px; margin-top:18px; flex-wrap:wrap; }
+  .symbols .s { background:#0b6a73; border-radius:12px; width:84px; padding:10px 4px; text-align:center; font-size:12px; color:#cfeef0; }
+  .symbols svg { width:44px; height:44px; }
+  .feats { margin-top:14px; }
+  .feats li { margin:8px 0 8px 20px; color:#d8eef0; }
+  footer { margin-top:56px; font-size:13px; color:#a9d8db; line-height:1.7; }
+  a { color:#eafafc; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">Wash<span>Code</span></div>
+  <div class="tag">The laundry-tag hieroglyphics, translated. Tap the symbols on your garment's care label and get plain-English instructions in seconds.</div>
+  <a class="cta" href="app.html">Decode my tag &rarr;</a>
+
+  <div class="symbols">
+    <div class="s"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 16 L56 16 L50 52 L14 52 Z"/><path d="M12 28 q4 -4 8 0 t8 0 t8 0 t8 0"/></svg><br>Washing</div>
+    <div class="s"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M32 12 L58 52 L6 52 Z"/></svg><br>Bleaching</div>
+    <div class="s"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="10" y="10" width="44" height="44"/><circle cx="32" cy="32" r="14"/></svg><br>Drying</div>
+    <div class="s"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 46 L52 46 L52 40 C52 30 44 24 34 24 L24 24 C16 24 12 32 12 40 Z"/></svg><br>Ironing</div>
+    <div class="s"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="32" cy="32" r="22"/><text x="32" y="40" text-anchor="middle" font-size="20" font-weight="700" fill="currentColor" stroke="none">P</text></svg><br>Dry clean</div>
+  </div>
+
+  <h2>Why this exists</h2>
+  <p>Every garment sold in the US must carry care instructions (FTC Care Labeling Rule, 16 CFR Part 423), and most of the world uses the five-symbol ISO 3758 / GINETEX system. Nobody remembers what a triangle with two slanted lines means. WashCode decodes all of it: 33 symbols across washing, bleaching, tumble and natural drying, ironing, and professional care.</p>
+
+  <h2>What you get</h2>
+  <ul class="feats">
+    <li>Tap-to-build your tag: pick the exact symbols printed on the label</li>
+    <li>Plain-English instructions in the standard order: wash, bleach, dry, iron, professional</li>
+    <li>Temperatures in &deg;C and &deg;F, cycle guidance (normal / permanent press / gentle)</li>
+    <li>Full reference chart for every symbol, plus search ("tumble", "gentle", "shade")</li>
+    <li>Works fully offline in your browser - nothing leaves your device</li>
+  </ul>
+
+  <h2>Grounded in the real standard</h2>
+  <p>Symbol meanings follow ISO 3758:2012 (international, numbers are max &deg;C) and ASTM D5489 (US dots variant), cross-checked against the FTC's published care-symbol chart and public references. A milder treatment than the label shows is always acceptable.</p>
+
+  <footer>
+    WashCode is a reference tool, not garment-specific advice - when in doubt, gentler is safer.<br>
+    Sources: <a href="https://www.ftc.gov/system/files/documents/rules/care-labeling-textile-wearing-apparel-certain-piece-goods/astm_care_symbols_chart.pdf">FTC / ASTM care symbol chart</a> &middot;
+    <a href="https://www.ecfr.gov/current/title-16/chapter-I/subchapter-D/part-423">FTC Care Labeling Rule (16 CFR 423)</a> &middot;
+    <a href="https://webstore.ansi.org/preview-pages/ISO/preview_ISO+3758-2012.pdf">ISO 3758:2012</a><br>
+    Built by the App Factory &middot; <a href="https://ilanis-agent.github.io/app-factory/">App Factory catalog</a>
+  </footer>
+</div>
+</body>
+</html>
