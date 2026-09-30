@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WashCode - Laundry Care Symbol Decoder</title>
+<meta name="description" content="Tap the mystery symbols on your garment tag and get plain-English washing, drying, bleaching, ironing and dry-cleaning instructions. ISO 3758 / ASTM care symbols.">
+<style>
+  :root { --ink:#1c2733; --mut:#5c6b7a; --line:#dbe4ec; --bg:#f4f8fb; --card:#ffffff;
+          --acc:#0e7c86; --accsoft:#e0f2f3; --warn:#b3401e; --warnsoft:#fdeee8; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; background:var(--bg); color:var(--ink); line-height:1.45; }
+  .wrap { max-width:760px; margin:0 auto; padding:18px 16px 60px; }
+  header { text-align:center; padding:26px 10px 10px; }
+  h1 { font-size:30px; letter-spacing:.5px; }
+  h1 .wash { color:var(--acc); }
+  .sub { color:var(--mut); margin-top:6px; font-size:15px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; margin-top:16px; }
+  .card h2 { font-size:15px; text-transform:uppercase; letter-spacing:1px; color:var(--mut); margin-bottom:10px; }
+  #tag-strip { display:flex; flex-wrap:wrap; gap:8px; min-height:20px; }
+  #tag-strip .empty { color:var(--mut); font-size:14px; font-style:italic; }
+  .chip { display:inline-flex; align-items:center; gap:6px; background:var(--accsoft); border:1px solid var(--acc);
+          border-radius:999px; padding:4px 10px 4px 6px; cursor:pointer; font-size:13px; }
+  .chip:hover { background:#cfeaea; }
+  .chip svg { width:26px; height:26px; }
+  .chip .x { color:var(--warn); font-weight:700; margin-left:2px; }
+  .result { margin-top:12px; }
+  .result .group { margin-bottom:12px; }
+  .result .glabel { font-weight:700; color:var(--acc); font-size:14px; margin-bottom:2px; }
+  .result .inst { padding:2px 0 2px 4px; font-size:15px; }
+  .result .inst .sym { display:inline-block; vertical-align:-6px; margin-right:6px; }
+  .result .inst .sym svg { width:26px; height:26px; }
+  .conflict-note { background:var(--warnsoft); border:1px solid var(--warn); color:var(--warn);
+                   border-radius:10px; padding:8px 12px; margin-top:10px; font-size:13px; display:none; }
+  .toolbar { display:flex; gap:10px; margin-top:16px; flex-wrap:wrap; align-items:center; }
+  #search { flex:1; min-width:180px; padding:10px 12px; border:1px solid var(--line); border-radius:10px; font-size:15px; }
+  button.clear { background:#eef2f6; border:1px solid var(--line); border-radius:10px; padding:10px 14px; font-size:14px; cursor:pointer; color:var(--ink); }
+  button.clear:hover { background:#e2e9ef; }
+  .cat h3 { font-size:14px; color:var(--mut); margin:16px 0 8px; text-transform:uppercase; letter-spacing:1px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(86px,1fr)); gap:8px; }
+  .sym-btn { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:8px 4px 6px;
+             display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; }
+  .sym-btn svg { width:44px; height:44px; }
+  .sym-btn .nm { font-size:11px; color:var(--mut); text-align:center; line-height:1.2; }
+  .sym-btn:hover { border-color:var(--acc); }
+  .sym-btn.sel { background:var(--accsoft); border:2px solid var(--acc); padding:7px 3px 5px; }
+  .sym-btn.sel .nm { color:var(--acc); font-weight:600; }
+  .ref { margin-top:8px; }
+  .ref-row { display:flex; align-items:center; gap:12px; padding:8px 4px; border-bottom:1px solid var(--line); }
+  .ref-row svg { width:38px; height:38px; flex:none; }
+  .ref-row .rname { font-weight:600; font-size:14px; min-width:150px; }
+  .ref-row .rinst { color:var(--mut); font-size:14px; }
+  footer { text-align:center; color:var(--mut); font-size:12px; margin-top:28px; line-height:1.6; }
+  a { color:var(--acc); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Wash<span class="wash">Code</span></h1>
+    <div class="sub">Decode the hieroglyphics on your clothing tag. Tap the symbols you see, get plain-English care instructions.</div>
+  </header>
+
+  <div class="card">
+    <h2>Your tag</h2>
+    <div id="tag-strip"><span class="empty">Tap symbols below to build your tag&hellip;</span></div>
+    <div class="conflict-note" id="conflict-note"></div>
+    <div class="result" id="result"></div>
+  </div>
+
+  <div class="toolbar">
+    <input id="search" type="search" placeholder="Search symbols, e.g. &quot;tumble&quot;, &quot;gentle&quot;, &quot;iron&quot;&hellip;">
+    <button class="clear" id="clear-btn">Clear tag</button>
+  </div>
+
+  <div id="browser"></div>
+
+  <div class="card ref">
+    <h2>Full reference chart</h2>
+    <div id="ref-table"></div>
+  </div>
+
+  <footer>
+    Symbol system: ISO 3758 / GINETEX internationally, ASTM D5489 in the US (numbers &rarr; max &deg;C, dots are the US variant).<br>
+    Care-label requirement: US FTC Care Labeling Rule, 16 CFR Part 423. Sources: FTC symbol chart (ftc.gov), ISO 3758:2012.<br>
+    A milder treatment than shown is always acceptable. Built by the App Factory.
+  </footer>
+</div>
+
+<script src="engine.js"></script>
+<script>
+(function () {
+  var selected = [];
+  var stripEl = document.getElementById('tag-strip');
+  var resultEl = document.getElementById('result');
+  var noteEl = document.getElementById('conflict-note');
+  var browserEl = document.getElementById('browser');
+  var refEl = document.getElementById('ref-table');
+  var searchEl = document.getElementById('search');
+
+  function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  /* --- inline SVG renderer for the five base shapes + modifiers --- */
+  function iconSVG(ic) {
+    var s = [];
+    s.push('<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">');
+    var base = ic.base;
+    if (base === 'tub') {
+      s.push('<path d="M8 16 L56 16 L50 52 L14 52 Z"/>');
+      s.push('<path d="M12 28 q4 -4 8 0 t8 0 t8 0 t8 0"/>');
+      if (ic.hand) {
+        s.push('<path fill="currentColor" stroke="none" d="M24 46 V34 c0-2.5 4-2.5 4 0 V28 c0-2.5 4-2.5 4 0 V26 c0-2.5 4-2.5 4 0 v2 c0-2.5 4-2.5 4 0 v14 c0 6 -3 9 -8 9 s-8-3 -8-5 z"/>');
+      }
+      if (ic.text) {
+        s.push('<text x="32" y="46" text-anchor="middle" font-family="inherit" font-size="16" font-weight="700" fill="currentColor" stroke="none">' + esc(ic.text) + '</text>');
+      }
+    } else if (base === 'triangle') {
+      s.push('<path d="M32 12 L58 52 L6 52 Z"/>');
+      if (ic.bars === 2) { /* non-chlorine: two oblique strokes */
+        s.push('<path d="M22 46 L40 28"/><path d="M28 48 L46 30"/>');
+      }
+    } else if (base === 'square') {
+      s.push('<rect x="10" y="10" width="44" height="44"/>');
+      if (ic.tumble != null) {
+        s.push('<circle cx="32" cy="32" r="14"/>');
+        if (ic.tumble >= 1) {
+          var n = ic.tumble, xs = n === 1 ? [32] : (n === 2 ? [26,38] : [23,32,41]);
+          xs.forEach(function (x) { s.push('<circle cx="' + x + '" cy="32" r="2.6" fill="currentColor" stroke="none"/>'); });
+        }
+      } else if (ic.natural) {
+        if (ic.natural.indexOf('line') === 0) s.push('<path d="M16 22 Q32 36 48 22"/>');
+        if (ic.natural.indexOf('flat') === 0) s.push('<path d="M16 32 L48 32"/>');
+        if (ic.natural.indexOf('shade') !== -1 || ic.natural === 'shade') {
+          s.push('<path d="M38 14 L50 26"/><path d="M44 14 L50 20"/>');
+        }
+        if (ic.natural === 'shade') { s.push('<path d="M32 14 L50 32"/>'); }
+      }
+    } else if (base === 'iron') {
+      s.push('<path d="M12 46 L52 46 L52 40 C52 30 44 24 34 24 L24 24 C16 24 12 32 12 40 Z"/>');
+      s.push('<path d="M20 24 L40 24"/>');
+      if (ic.dots) {
+        var xs = ic.dots === 1 ? [32] : (ic.dots === 2 ? [27,37] : [23,32,41]);
+        xs.forEach(function (x) { s.push('<circle cx="' + x + '" cy="37" r="2.4" fill="currentColor" stroke="none"/>'); });
+      }
+      if (ic.steam) {
+        s.push('<path d="M16 54 L48 20"/><path d="M20 20 L48 54"/>');
+      }
+    } else if (base === 'circle') {
+      s.push('<circle cx="32" cy="32" r="22"/>');
+      if (ic.letter) {
+        s.push('<text x="32" y="40" text-anchor="middle" font-family="inherit" font-size="20" font-weight="700" fill="currentColor" stroke="none">' + esc(ic.letter) + '</text>');
+      }
+    }
+    if (ic.cross) {
+      s.push('<path d="M8 8 L56 56" stroke-width="4.5"/><path d="M56 8 L8 56" stroke-width="4.5"/>');
+    }
+    if (ic.bars === 1) {
+      s.push('<path d="M18 59 L46 59"/>');
+    } else if (ic.bars === 2 && base !== 'triangle') {
+      s.push('<path d="M18 58 L46 58"/><path d="M22 62 L42 62" stroke-width="2.5"/>');
+    }
+    s.push('</svg>');
+    return s.join('');
+  }
+
+  /* --- tag strip + decoded instructions --- */
+  function render() {
+    if (!selected.length) {
+      stripEl.innerHTML = '<span class="empty">Tap symbols below to build your tag&hellip;</span>';
+      resultEl.innerHTML = '';
+    } else {
+      stripEl.innerHTML = selected.map(function (id) {
+        var s = WashCode.getSymbol(id);
+        return '<span class="chip" data-id="' + s.id + '" title="Remove">' + iconSVG(s.icon) + esc(s.name) + '<span class="x">&times;</span></span>';
+      }).join('');
+      var decoded = WashCode.decode(selected);
+      var html = '', lastCat = null;
+      decoded.forEach(function (d) {
+        if (d.cat !== lastCat) { html += '<div class="group"><div class="glabel">' + esc(d.label) + '</div>'; lastCat = d.cat; }
+        html += '<div class="inst"><span class="sym">' + iconSVG(WashCode.getSymbol(d.id).icon) + '</span>' + esc(d.instruction) + '</div>';
+      });
+      if (html) html += '</div>';
+      resultEl.innerHTML = html;
+    }
+    var cf = WashCode.conflicts(selected);
+    if (cf.length) {
+      noteEl.style.display = 'block';
+      noteEl.textContent = 'Heads up: a real tag usually has one symbol per shape - you picked more than one of the same type. Instructions show everything you selected.';
+    } else {
+      noteEl.style.display = 'none';
+    }
+    document.querySelectorAll('.sym-btn').forEach(function (b) {
+      b.classList.toggle('sel', selected.indexOf(b.dataset.id) !== -1);
+    });
+  }
+
+  /* --- symbol browser, grouped by category or filtered by search --- */
+  function renderBrowser() {
+    var q = searchEl.value;
+    if (q.trim()) {
+      var hits = WashCode.searchSymbols(q);
+      browserEl.innerHTML = '<div class="cat"><h3>' + hits.length + ' match' + (hits.length === 1 ? '' : 'es') + '</h3>' +
+        '<div class="grid">' + hits.map(btnHTML).join('') + '</div></div>';
+    } else {
+      browserEl.innerHTML = WashCode.CATS.map(function (cat) {
+        return '<div class="cat"><h3>' + esc(WashCode.CAT_LABEL[cat]) + '</h3><div class="grid">' +
+          WashCode.SYMBOLS.filter(function (s) { return s.cat === cat; }).map(btnHTML).join('') + '</div></div>';
+      }).join('');
+    }
+    render();
+  }
+  function btnHTML(s) {
+    return '<button class="sym-btn" data-id="' + s.id + '" title="' + esc(s.instruction) + '">' + iconSVG(s.icon) + '<span class="nm">' + esc(s.name) + '</span></button>';
+  }
+
+  /* --- reference table --- */
+  refEl.innerHTML = WashCode.SYMBOLS.map(function (s) {
+    return '<div class="ref-row">' + iconSVG(s.icon) + '<span class="rname">' + esc(s.name) + '</span><span class="rinst">' + esc(s.instruction) + '</span></div>';
+  }).join('');
+
+  /* --- events --- */
+  browserEl.addEventListener('click', function (e) {
+    var b = e.target.closest('.sym-btn'); if (!b) return;
+    var id = b.dataset.id, i = selected.indexOf(id);
+    if (i === -1) selected.push(id); else selected.splice(i, 1);
+    render();
+  });
+  stripEl.addEventListener('click', function (e) {
+    var c = e.target.closest('.chip'); if (!c) return;
+    var i = selected.indexOf(c.dataset.id);
+    if (i !== -1) { selected.splice(i, 1); render(); }
+  });
+  document.getElementById('clear-btn').addEventListener('click', function () { selected = []; searchEl.value = ''; renderBrowser(); });
+  searchEl.addEventListener('input', renderBrowser);
+
+  renderBrowser();
+})();
+</script>
+</body>
+</html>
